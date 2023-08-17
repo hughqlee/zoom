@@ -10,10 +10,17 @@ html(lang="en")
         header
             h1 Noom
         main
-            h2 Welcome to Noom
-            ul
-            form
-                input(type="text", id="name", placeholder="name", required)
-                input(type="text", id="msg", placeholder="msg", required)
+            h2 Hello, user. Your name?
+            ul#chat
+            form#msg
+                input(type="text", placeholder="msg", required)
                 button Send
+            ul#rooms
+            form#room
+                input(type="text", placeholder="room", required)
+                button Enter
+            form#nickName
+                input(type="text", placeholder="name", required)
+                button Save
+        script(src="/socket.io/socket.io.js") 
         script(src="/public/app.js") 
