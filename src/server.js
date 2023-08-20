@@ -13,40 +13,19 @@ app.get("/*", (_, res) => res.redirect("/"));
 const httpServer = http.createServer(app);
 const wsServer = SocketIO(httpServer);
 
-function publicRooms() {
-    const {
-        sockets: {
-            adapter: { sids, rooms },
-        },
-    } = wsServer;
-    const publicRooms = [];
-    rooms.forEach((_, key) => {
-        if (sids.get(key) === undefined) {
-            publicRooms.push(key);
-        }
-    });
-    return publicRooms;
-}
-
 wsServer.on("connection", (socket) => {
-    socket["nickname"] = "Noname";
-    socket.on('change_name', (nickname, room) => {
-        socket.to(room).emit("change_name", `changed ${socket.nickname} to ${nickname}.`)
-        socket["nickname"] = nickname
-    });
-    socket.on("new_message", (msg, room, done) => {
-        socket.to(room).emit("new_message", `${socket.nickname}: ${msg}`);
-        done();
-    });
-    socket.on("enter_room", (roomName, done) => {
+    socket.on("join_room", (roomName, ) => {
         socket.join(roomName);
-        done();
-        socket.to(roomName).emit('notify_join', socket.nickname);
-        wsServer.sockets.emit("update_rooms", publicRooms());
+        socket.to(roomName).emit("welcome");
     });
-    socket.on("disconnecting", () => {
-        socket.rooms.forEach((room) => socket.to(room).emit("notify_leave", socket.nickname))
-        wsServer.sockets.emit("update_rooms", publicRooms());
+    socket.on("offer", (offer, roomName) => {
+        socket.to(roomName).emit("offer", offer);
+    });
+    socket.on("answer", (answer, roomName) => {
+        socket.to(roomName).emit("answer", answer);
+    });
+    socket.on("ice", (ice, roomName) => {
+        socket.to(roomName).emit("ice", ice);
     });
 });
 
